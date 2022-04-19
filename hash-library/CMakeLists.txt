@@ -1,0 +1,1 @@
+add_library(SHA256 sha256.cpp)
