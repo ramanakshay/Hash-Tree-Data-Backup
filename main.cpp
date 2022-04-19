@@ -15,7 +15,7 @@ class HashTree {
   string root;
   map<string,vector<string>> tree;
 
-  void build(string path) {
+  void build(const string path) {
 	SHA256 hash;
 	vector<string> info;
 	if(is_directory(path)) {
@@ -53,7 +53,7 @@ class HashTree {
 	this->tree[path] = info;
   }
 
-  void build_fromFile(string path) {
+  void build_fromFile(const string path) {
 	bool first = true;
 	ifstream file(path);
 	if(!file) {
@@ -78,6 +78,17 @@ class HashTree {
   }
 
  public:
+
+  HashTree(string pathName, bool fromFile = false){
+
+	if (fromFile) {
+	  build_fromFile(pathName);
+	} else {
+	  this->root = pathName;
+	  build(pathName);
+	}
+  }
+
   void save(string destination) {
 	ofstream file;
 	file.open(destination);
@@ -98,16 +109,6 @@ class HashTree {
 	}
 	cout << "Hash Tree saved at " << destination << endl;
 	file.close();
-  }
-
-  HashTree(string pathName, bool fromFile = false){
-
-	if (fromFile) {
-	  build_fromFile(pathName);
-	} else {
-	  this->root = pathName;
-	  build(pathName);
-	}
   }
 
   void print() {
