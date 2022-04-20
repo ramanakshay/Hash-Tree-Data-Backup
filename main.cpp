@@ -11,6 +11,53 @@ namespace fs = std::__fs::filesystem;
 using namespace std;
 using namespace fs;
 
+string backupPath = "/Users/akshay_raman/Documents/backup/";
+string basePath = "/Users/akshay_raman/Documents/";
+
+
+class query {
+  string pathName;
+  string operation;
+
+ public:
+  query(string operation, string pathName) {
+	this->operation = operation;
+	this->pathName = pathName;
+  }
+
+  bool execute() {
+	string source = pathName;
+	string destination = backupPath + source.substr(basePath.length(), source.length() - basePath.length());
+	fs::path fileLoc = destination;
+	fileLoc.remove_filename();
+
+	try {
+	  if (operation == "add") {
+		fs::create_directories(fileLoc);
+		fs::copy(source,destination, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
+	  } else if (operation == "delete") {
+		  fs::remove_all(destination);
+	  } else if (operation == "modify") {
+		  fs::remove_all(destination);
+
+		  fs::create_directories(fileLoc);
+		  fs::copy(source,destination, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
+	  } else {
+		cout << "Invalid query" << endl;
+		return false;
+	  }
+	  return true;
+	} catch (exception& e){
+	  cout << "Unable to execute query";
+	  return false;
+	}
+  }
+
+  void print() {
+	cout << operation << " " << pathName << endl;
+  }
+};
+
 class HashTree {
   string root;
   map<string,vector<string>> tree;
@@ -149,15 +196,18 @@ void HashTree::build(const string& path) {
 }
 
 queue<string> current;
+vector<query> queries;
 
 void compare(vector<string> la, vector<string> lb) {
 	int i = 0, j = 0;
 	while (i < la.size() && j < lb.size()) {
 	  if (la[i] < lb[j]) {
 		cout << "Deleted " << la[i] << endl;
+		queries.push_back(query("delete",la[i]));
 		i++;
 	  } else if (lb[j] < la[i]) {
 		cout << "Added " << lb[j] << endl;
+		queries.push_back(query("add",lb[j]));
 		j++;
 	  } else {
 		current.push(la[i]);
@@ -168,47 +218,63 @@ void compare(vector<string> la, vector<string> lb) {
 
 	while(i < la.size()) {
 	  cout << "Deleted " << la[i] << endl;
+	  queries.push_back(query("delete",la[i]));
 	  i++;
 	}
 
 	while(j < lb.size()) {
 	  cout << "Added " << lb[j] << endl;
+	  queries.push_back(query("add",lb[j]));
 	  j++;
 	}
 }
 
 void BFS(HashTree *hta, HashTree *htb) {
   	cout << "\nChanges: " << endl;
-	if (hta -> get_root() != htb -> get_root()) {
-	  cout << "Added " << htb -> get_root();
-	  cout << "Deleted " << hta -> get_root();
+	if (hta->get_root() != htb->get_root()) {
+	  cout << "Added " << htb -> get_root() << endl;
+	  queries.push_back(query("add",htb -> get_root()));
+	  cout << "Deleted " << hta -> get_root() << endl;
+	  queries.push_back(query("delete",hta -> get_root()));
 	} else {
 	  current.push(hta -> get_root());
 	  while(!current.empty()) {
 		string node = current.front();
 		current.pop();
 		if (hta -> get_hash(node) != htb -> get_hash(node)) {
-		  if (htb -> get_children(node).empty())
+		  if (htb -> get_children(node).empty()) {
 			cout << "Modified " << node << endl;
-		  else
-			compare(hta-> get_children(node), htb -> get_children(node));
+			queries.push_back(query("modify",node));
+		  } else
+			  compare(hta-> get_children(node), htb -> get_children(node));
 		}
 	  }
 	}
 }
 
 int main() {
-  HashTree *ht1 = new HashTree("/Users/akshay_raman/Documents/test/Fall 21-22/STS");
+
+  HashTree *ht1 = new HashTree("/Users/akshay_raman/Documents/backup/example.txt", true); // previous state
 //  ht1 -> print();
   ht1 -> print_metadata();
-//  ht1 -> save("/Users/akshay_raman/Documents/test/example.txt");
 
   cout << endl;
 
-  HashTree *ht2 = new HashTree("/Users/akshay_raman/Documents/test/example.txt",true);
+
+  HashTree *ht2 = new HashTree("/Users/akshay_raman/Documents/test/Fall 21-22/STS"); // current state
 //  ht2 -> print();
   ht2 -> print_metadata();
 
-  BFS(ht2,ht1);
+
+  cout << endl;
+
+  BFS(ht1,ht2); // find changes
+
+  for (query q : queries) { //update backup
+	q.print();
+	q.execute();
+  }
+
+//  ht2 -> save("/Users/akshay_raman/Documents/backup/example.txt");
   return 0;
 }
