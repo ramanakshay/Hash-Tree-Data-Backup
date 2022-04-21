@@ -13,6 +13,7 @@ using namespace fs;
 
 string backupPath = "/Users/akshay_raman/Documents/backup/";
 string basePath = "/Users/akshay_raman/Documents/";
+string dataPath = "/Users/akshay_raman/Documents/test/Fall 21-22/STS";
 
 
 class query {
@@ -198,83 +199,71 @@ void HashTree::build(const string& path) {
 queue<string> current;
 vector<query> queries;
 
-void compare(vector<string> la, vector<string> lb) {
+void compareHelper(vector<string> lold, vector<string> lnew) {
 	int i = 0, j = 0;
-	while (i < la.size() && j < lb.size()) {
-	  if (la[i] < lb[j]) {
-		cout << "Deleted " << la[i] << endl;
-		queries.push_back(query("delete",la[i]));
+	while (i < lold.size() && j < lnew.size()) {
+	  if (lold[i] < lnew[j]) {
+		cout << "Deleted " << lold[i] << endl;
+		queries.push_back(query("delete",lold[i]));
 		i++;
-	  } else if (lb[j] < la[i]) {
-		cout << "Added " << lb[j] << endl;
-		queries.push_back(query("add",lb[j]));
+	  } else if (lnew[j] < lold[i]) {
+		cout << "Added " << lnew[j] << endl;
+		queries.push_back(query("add",lnew[j]));
 		j++;
 	  } else {
-		current.push(la[i]);
+		current.push(lold[i]);
 		i++;
 		j++;
 	  }
 	}
 
-	while(i < la.size()) {
-	  cout << "Deleted " << la[i] << endl;
-	  queries.push_back(query("delete",la[i]));
+	while(i < lold.size()) {
+	  cout << "Deleted " << lold[i] << endl;
+	  queries.push_back(query("delete",lold[i]));
 	  i++;
 	}
 
-	while(j < lb.size()) {
-	  cout << "Added " << lb[j] << endl;
-	  queries.push_back(query("add",lb[j]));
+	while(j < lnew.size()) {
+	  cout << "Added " << lnew[j] << endl;
+	  queries.push_back(query("add",lnew[j]));
 	  j++;
 	}
 }
 
-void BFS(HashTree *hta, HashTree *htb) {
+void compareTrees(HashTree *htold, HashTree *htnew) {
   	cout << "\nChanges: " << endl;
-	if (hta->get_root() != htb->get_root()) {
-	  cout << "Added " << htb -> get_root() << endl;
-	  queries.push_back(query("add",htb -> get_root()));
-	  cout << "Deleted " << hta -> get_root() << endl;
-	  queries.push_back(query("delete",hta -> get_root()));
-	} else {
-	  current.push(hta -> get_root());
-	  while(!current.empty()) {
-		string node = current.front();
-		current.pop();
-		if (hta -> get_hash(node) != htb -> get_hash(node)) {
-		  if (htb -> get_children(node).empty()) {
-			cout << "Modified " << node << endl;
-			queries.push_back(query("modify",node));
-		  } else
-			  compare(hta-> get_children(node), htb -> get_children(node));
+	current.push(htold -> get_root());
+	while(!current.empty()) {
+	  string node = current.front();
+	  current.pop();
+	  if (htold -> get_hash(node) != htnew -> get_hash(node)) {
+		if (htnew -> get_children(node).empty()) {
+		  cout << "Modified " << node << endl;
+		  queries.push_back(query("modify",node));
+		} else
+			compareHelper(htold-> get_children(node), htnew -> get_children(node));
 		}
 	  }
-	}
 }
 
 int main() {
-
-  HashTree *ht1 = new HashTree("/Users/akshay_raman/Documents/backup/example.txt", true); // previous state
-//  ht1 -> print();
-  ht1 -> print_metadata();
-
+  HashTree *ht_data = new HashTree(dataPath); // current state
+  ht_data -> print();
+  ht_data -> print_metadata();
   cout << endl;
 
-
-  HashTree *ht2 = new HashTree("/Users/akshay_raman/Documents/test/Fall 21-22/STS"); // current state
-//  ht2 -> print();
-  ht2 -> print_metadata();
-
-
-  cout << endl;
-
-  BFS(ht1,ht2); // find changes
+  if (!fs::exists(backupPath + "hashtree.txt")) {
+	queries.push_back(query("add",dataPath));
+  } else {
+	HashTree *ht_backup = new HashTree(backupPath+"hashtree.txt", true);
+	compareTrees(ht_backup,ht_data); // find changes
+  }
 
   for (query q : queries) { //update backup
 	q.print();
 	q.execute();
   }
 
-//  ht2 -> save("/Users/akshay_raman/Documents/backup/example.txt");
+  ht_data -> save(backupPath + "hashtree.txt");
   return 0;
 }
