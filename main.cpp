@@ -107,7 +107,7 @@ void compareTrees(HashTree *htold, HashTree *htnew) {
 }
 
 int main() {
-  cout << "BackUp With HashTrees" << endl;
+  cout << "(Parallel) Data Backup Using Hash Trees" << endl;
 
   cout << endl;
 
