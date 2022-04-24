@@ -15,3 +15,7 @@ target_include_directories(main PUBLIC "${PROJECT_SOURCE_DIR}/hash-library")
 target_link_libraries(main PUBLIC HashTree)
 target_include_directories(main PUBLIC "${PROJECT_SOURCE_DIR}/hash-tree")
 
+find_package(OpenMP REQUIRED)
+target_link_libraries(main PRIVATE OpenMP::OpenMP_CXX)
+
+

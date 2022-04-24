@@ -2,8 +2,11 @@
 #include <vector>
 #include <filesystem>
 #include <queue>
+#include <omp.h>
 #include "sha256.h"
 #include "hashtree.h"
+
+#define NUM_THREADS 4
 
 namespace fs = std::__fs::filesystem;
 using namespace std;
@@ -112,9 +115,29 @@ int main() {
   cout << endl;
 
   cout << "Current Data Hash Tree:" << endl;
-  HashTree ht_data = HashTree(dataPath, false); // current state
+
+  HashTree *ht_data;
+
+  omp_set_num_threads(NUM_THREADS);
+
+  double start = omp_get_wtime();
+
+#pragma omp parallel default(none) firstprivate(dataPath) shared(ht_data)
+  {
+#pragma omp single
+	{
+	  ht_data = new HashTree(dataPath, false); // current state
+	}
+  }
+
+  double end = omp_get_wtime();
+
 //  ht_data.print();
-  ht_data.print_metadata();
+  ht_data->print_metadata();
+
+  cout << endl;
+
+  cout << "Time Taken: " << end - start << "s" << endl;
 
   cout << endl;
 
@@ -123,15 +146,17 @@ int main() {
 	queries.push_back(query("add",dataPath));
   } else {
 	cout << "Backup Hash Tree:" << endl;
-	HashTree ht_backup = HashTree(backupPath+"hashtree.txt", true);
+	HashTree *ht_backup = new HashTree(backupPath+"hashtree.txt", true);
 //	ht_data.print();
-	ht_data.print_metadata();
-	compareTrees(&ht_backup,&ht_data); // find changes
+	ht_data->print_metadata();
+	compareTrees(ht_backup,ht_data); // find changes
   }
 
   cout << endl;
 
   cout << "Executed Queries:" << endl;
+#pragma omp parallel default(none) shared(queries)
+#pragma omp for schedule(dynamic,1)
   for (query q : queries) { //update backup
 	q.print();
 	q.execute();
@@ -139,7 +164,7 @@ int main() {
 
   cout << endl;
 
-  ht_data.save(backupPath + "hashtree.txt");
+  ht_data->save(backupPath + "hashtree.txt");
 
   return 0;
 }

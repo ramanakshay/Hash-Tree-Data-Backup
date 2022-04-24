@@ -3,6 +3,7 @@
 //
 
 #include "hashtree.h"
+#include <omp.h>
 
 HashTree::HashTree(const string& pathName, bool fromFile = false){
 
@@ -102,8 +103,14 @@ void HashTree::build(const string& path) {
 	  info.push_back(entry.path()); // get all children
 	}
 	sort(info.begin(), info.end());
+
 	for (const string& child : info) {
+#pragma omp task default(none) firstprivate(child) untied
 	  build(child); // recursive call to child
+	}
+
+#pragma omp taskwait
+	for (const string &child : info) {
 	  string child_hash = this->tree[child][0]; // get hash of child
 	  hash.add(&child_hash, child_hash.length());
 	}
