@@ -6,7 +6,7 @@
 #include "sha256.h"
 #include "hashtree.h"
 
-#define NUM_THREADS 4
+#define NUM_THREADS 8
 
 namespace fs = std::__fs::filesystem;
 using namespace std;
@@ -14,7 +14,7 @@ using namespace fs;
 
 const string backupPath = "/Users/akshay_raman/Documents/backup/";
 const string basePath = "/Users/akshay_raman/Documents/";
-const string dataPath = "/Users/akshay_raman/Documents/test/Fall 21-22/STS";
+const string dataPath = "/Users/akshay_raman/Documents/test/Fall 21-22/code/next";
 
 class query {
   string pathName;

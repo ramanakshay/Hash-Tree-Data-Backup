@@ -104,10 +104,15 @@ void HashTree::build(const string& path) {
 	}
 	sort(info.begin(), info.end());
 
-	for (const string& child : info) {
-#pragma omp task default(none) firstprivate(child) untied
+	for (const string &child : info) {
+	  if (!is_directory(child)) {
+#pragma omp task default(none) firstprivate(child) priority(1)
 	  build(child); // recursive call to child
+	} else {
+#pragma omp task default(none) firstprivate(child) priority(0)
+	  build(child);
 	}
+  }
 
 #pragma omp taskwait
 	for (const string &child : info) {
