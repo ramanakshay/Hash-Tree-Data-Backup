@@ -14,7 +14,7 @@ using namespace fs;
 
 const string backupPath = "/Users/akshay_raman/Documents/backup/";
 const string basePath = "/Users/akshay_raman/Documents/";
-const string dataPath = "/Users/akshay_raman/Documents/test/Fall 21-22/code/next";
+const string dataPath = "/Users/akshay_raman/Documents/test/Fall 21-22/STS";
 
 class query {
   string pathName;
