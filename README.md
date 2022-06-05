@@ -13,7 +13,9 @@ The project has three important parts:
 
 A Merkle tree is a generalisation of the hash list and is a hash-based data structure. It is a tree structure in which each leaf node is a hash of a block of data, and each non-leaf node is a hash of its children. Generally, Merkle trees have a branching factor of 2, where each node has a maximum of 2 children. However, an n-ary hash tree is required here for the file system.
 
-*Add merkle tree image
+<p align = "center">
+<img align="center" src="images/hash_tree.png" alt="Hash Tree"/>
+</p>
 
 The hash-tree folder consists of the implementation of the hash tree class which build a hash tree. It can be built using two ways:
 1. From **file path** - Build a hash tree of data with the root as the input file path
@@ -58,7 +60,9 @@ Finally, the queries are executed on the existing backup itself. This has the be
 
 ## Sample Output
 
-*add sample output.
+<p align = "center">
+<img align="center" src="images/sample_output.png" alt="Sample Output"/>
+</p>
 
 ## Results
 
@@ -78,7 +82,9 @@ The parallel code performed much better than the serial code. On average, the pa
 
 </div>
  
-*add graph
+<p align = "center">
+<img align="center" src="images/serial_vs_parallel.png" alt="Serial vs. Parallel"/>
+</p>
 
 The program also performs slightly better as the number of threads are increased. The performance depends on various factors such as the size of the data and the algorithm used by the CPU to schedule OpenMP tasks. However, we do observe that the difference in performance between serial and parallel is much more noticable for large data. 
 
@@ -95,7 +101,9 @@ The program also performs slightly better as the number of threads are increased
 
 </div>
 
-*add graph
+<p align = "center">
+<img align="center" src="images/no_of_threads.png" alt="Number of Threads"/>
+</p>
 
 ## Note
 
