@@ -14,7 +14,7 @@ The project has three important parts:
 A Merkle tree is a generalisation of the hash list and is a hash-based data structure. It is a tree structure in which each leaf node is a hash of a block of data, and each non-leaf node is a hash of its children. Generally, Merkle trees have a branching factor of 2, where each node has a maximum of 2 children. However, an n-ary hash tree is required here for the file system.
 
 <p align = "center">
-<img align="center" src="images/hash_tree.png" alt="Hash Tree"/>
+<img align="center" src="images/hash_tree.png" alt="Hash Tree" width = "750" />
 </p>
 
 The hash-tree folder consists of the implementation of the hash tree class which build a hash tree. It can be built using two ways:
