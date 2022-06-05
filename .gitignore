@@ -34,3 +34,6 @@
 #Clion
 cmake-build-debug/
 .idea/
+
+# DS Store
+.DS_Store
